@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Lin\Binance\BinanceFuture;
 use Laravel\Lumen\Routing\Controller as BaseController;
+use Telegram\Bot\Api;
 
 /**
  * Class Controller
@@ -16,6 +18,10 @@ class Controller extends BaseController
      * @var BinanceFuture
      */
     private $binance;
+    /**
+     * @var Api
+     */
+    private $telegram;
 
     /**
      * Controller constructor.
@@ -23,6 +29,7 @@ class Controller extends BaseController
     public function __construct()
     {
         $this->binance = new BinanceFuture(config('binance.key'), config('binance.secret'));
+        $this->telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
     }
 
     /**
@@ -31,6 +38,27 @@ class Controller extends BaseController
     public function account(): void
     {
         $account = $this->binance->user()->getAccount();
+
+        $message = "*SELL* trade opened:\n" .
+            'Entry time: ' . Carbon::now() . "\n";
+
+        $this->telegram->sendMessage([
+            'chat_id' => '-556908913',
+            'text' => $message,
+            'parse_mode' => 'Markdown',
+        ]);
+
+        $message = "*SELL* trade closed:\n" .
+            'Entry time: ' . Carbon::now()->subYear() . "\n" .
+            'Exit time: ' . Carbon::now() . "\n" .
+            'Total wallet balance: ' . $account['totalWalletBalance'] . "\n";
+
+        $this->telegram->sendMessage([
+            'chat_id' => '-556908913',
+            'text' => $message,
+            'parse_mode' => 'Markdown',
+        ]);
+
         dd(
             config('binance.symbol'),
             config('binance.quantity'),
