@@ -35,7 +35,7 @@ class TelegramService
     {
         $message = "*" . $order->type . "* trade opened:\n" .
             'Entry time: ' . $order->entry_time . "\n" .
-            '-------------------------------------------------';
+            '---------------------------------';
 
         $this->telegram->sendMessage([
             'chat_id' => config('telegram.chatId'),
@@ -54,7 +54,7 @@ class TelegramService
         $message = "*" . $order->type . "* trade closed:\n" .
             'Entry time: ' . $order->entry_time . "\n" .
             'Exit time: ' . $order->exit_time . "\n" .
-            '-------------------------------------------------';
+            '---------------------------------';
 
         $this->telegram->sendMessage([
             'chat_id' => config('telegram.chatId'),
