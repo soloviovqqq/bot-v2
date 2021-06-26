@@ -65,8 +65,7 @@ class TelegramService
                     [
                         [
                             'text' => 'Total wallet balance',
-                            'url' => 'https://bot-v2.soloviovqqq.fun',
-//                            'url' => route('account'),
+                            'url' => route('account'),
                         ]
                     ],
                 ]
