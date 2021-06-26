@@ -13,7 +13,10 @@
 |
 */
 
-$router->get('account', ['uses' => 'Controller@account']);
+$router->get('account', [
+    'as' => 'account',
+    'uses' => 'Controller@account'
+]);
 
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->get('buy', ['uses' => 'Controller@buy']);

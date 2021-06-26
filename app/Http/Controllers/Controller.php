@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
+use JsonException;
+use App\Models\Order;
 use Lin\Binance\BinanceFuture;
+use Illuminate\Http\JsonResponse;
+use App\Utils\OrderService\OrderService;
+use App\Utils\OrderRepository\OrderRepository;
+use App\Utils\TelegramService\TelegramService;
+use Telegram\Bot\Exceptions\TelegramSDKException;
 use Laravel\Lumen\Routing\Controller as BaseController;
-use Telegram\Bot\Api;
 
 /**
  * Class Controller
@@ -15,98 +19,94 @@ use Telegram\Bot\Api;
 class Controller extends BaseController
 {
     /**
-     * @var BinanceFuture
+     * @var OrderRepository
      */
-    private $binance;
+    private $orderRepository;
     /**
-     * @var Api
+     * @var OrderService
      */
-    private $telegram;
+    private $orderService;
+    /**
+     * @var TelegramService
+     */
+    private $telegramService;
 
     /**
      * Controller constructor.
+     * @param OrderRepository $orderRepository
+     * @param OrderService $orderService
+     * @param TelegramService $telegramService
      */
-    public function __construct()
+    public function __construct(
+        OrderRepository $orderRepository,
+        OrderService $orderService,
+        TelegramService $telegramService
+    )
     {
-        $this->binance = new BinanceFuture(config('binance.key'), config('binance.secret'));
-        $this->telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
+        $this->orderRepository = $orderRepository;
+        $this->orderService = $orderService;
+        $this->telegramService = $telegramService;
     }
 
     /**
      * @return void
      */
-    public function account(): void
+    public function account()
     {
-        $account = $this->binance->user()->getAccount();
-
-        $message = "*SELL* trade opened:\n" .
-            'Entry time: ' . Carbon::now() . "\n";
-
-        $this->telegram->sendMessage([
-            'chat_id' => '-556908913',
-            'text' => $message,
-            'parse_mode' => 'Markdown',
-        ]);
-
-        $message = "*SELL* trade closed:\n" .
-            'Entry time: ' . Carbon::now()->subYear() . "\n" .
-            'Exit time: ' . Carbon::now() . "\n" .
-            'Total wallet balance: ' . $account['totalWalletBalance'] . "\n";
-
-        $this->telegram->sendMessage([
-            'chat_id' => '-556908913',
-            'text' => $message,
-            'parse_mode' => 'Markdown',
-        ]);
+        $binance = new BinanceFuture(config('binance.key'), config('binance.secret'));
+        $account = $binance->user()->getAccount();
 
         dd(
+            route('account'),
             config('binance.symbol'),
             config('binance.quantity'),
-            $account
+            $account,
         );
     }
 
     /**
      * @return JsonResponse
+     * @throws JsonException
+     * @throws TelegramSDKException
      */
     public function buy(): JsonResponse
     {
-        $this->binance->trade()->postOrder([
-            'symbol' => config('binance.symbol'),
-            'side' => 'BUY',
-            'type' => 'MARKET',
-            'quantity' => config('binance.quantity'),
-        ]);
-//        $this->binance->trade()->postOrder([
-//            'symbol' => 'ETHUSDT',
-//            'side' => 'SELL',
-//            'type' => 'STOP_MARKET',
-//            'closePosition' => 'TRUE',
-//            'stopPrice' => 1000,
-//        ]);
+        $this->closeOpenedOrder(Order::SELL_TYPE);
+        $order = $this->orderRepository->createOrder(Order::BUY_TYPE);
+//        $this->orderService->openOrder($order);
+        $this->telegramService->sendOpenOrderMessage($order);
 
         return response()->json();
     }
 
     /**
      * @return JsonResponse
+     * @throws JsonException
+     * @throws TelegramSDKException
      */
     public function sell(): JsonResponse
     {
-        $this->binance->trade()->postOrder([
-            'symbol' => config('binance.symbol'),
-            'side' => 'SELL',
-            'type' => 'MARKET',
-            'quantity' => config('binance.quantity'),
-        ]);
-//        $this->binance->trade()->postOrder([
-//            'symbol' => 'ETHUSDT',
-//            'side' => 'BUY',
-//            'type' => 'STOP_MARKET',
-//            'closePosition' => 'TRUE',
-//            'stopPrice' => 3000,
-//        ]);
+        $this->closeOpenedOrder(Order::BUY_TYPE);
+        $order = $this->orderRepository->createOrder(Order::SELL_TYPE);
+//        $this->orderService->openOrder($order);
+        $this->telegramService->sendOpenOrderMessage($order);
 
         return response()->json();
+    }
+
+    /**
+     * @param string $type
+     * @throws TelegramSDKException
+     * @throws JsonException
+     */
+    private function closeOpenedOrder(string $type): void
+    {
+        $openOrder = $this->orderRepository->findOpenOrderByType($type);
+
+        if ($openOrder) {
+//            $this->orderService->closeOrder($openOrder);
+            $this->orderRepository->closeOrder($openOrder);
+            $this->telegramService->sendCloseOrderMessage($openOrder);
+        }
     }
 }

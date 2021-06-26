@@ -5,6 +5,7 @@
     "license": "MIT",
     "type": "project",
     "require": {
+        "ext-json": "*",
         "php": "^7.3|^8.0",
         "irazasyed/telegram-bot-sdk": "^3.4",
         "laravel/lumen-framework": "^8.0",
