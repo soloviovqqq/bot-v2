@@ -18,7 +18,7 @@ class CreateOrdersTable extends Migration
             $table->id();
             $table->string('symbol');
             $table->string('type');
-            $table->float('quantity', 8, 8);
+            $table->double('quantity');
             $table->tinyInteger('status');
             $table->timestamp('entry_time')->nullable();
             $table->timestamp('exit_time')->nullable();

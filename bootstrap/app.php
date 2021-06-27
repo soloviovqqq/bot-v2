@@ -23,7 +23,7 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
-// $app->withFacades();
+ $app->withFacades();
 
  $app->withEloquent();
 
@@ -62,6 +62,8 @@ $app->singleton(
 $app->configure('app');
 $app->configure('binance');
 $app->configure('telegram');
+$app->configure('logging');
+$app->configure('telegram-logger');
 
 /*
 |--------------------------------------------------------------------------
@@ -97,6 +99,7 @@ $app->configure('telegram');
 // $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 $app->register(\Telegram\Bot\Laravel\TelegramServiceProvider::class);
+$app->register(\Logger\TelegramLoggerServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------

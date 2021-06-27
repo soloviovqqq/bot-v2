@@ -7,6 +7,7 @@
     "require": {
         "ext-json": "*",
         "php": "^7.3|^8.0",
+        "grkamil/laravel-telegram-logging": "^1.4",
         "irazasyed/telegram-bot-sdk": "^3.4",
         "laravel/lumen-framework": "^8.0",
         "linwj/binance": "^2.1"
@@ -21,7 +22,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Utils/Helpers/helpers.php"
+        ]
     },
     "autoload-dev": {
         "classmap": [
