@@ -73,7 +73,7 @@ class Controller extends BaseController
     {
         $this->closeOpenedOrder(Order::SELL_TYPE);
         $order = $this->orderRepository->createOrder(Order::BUY_TYPE);
-//        $this->orderService->openOrder($order);
+        $this->orderService->openOrder($order);
         $this->telegramService->sendOpenOrderMessage($order);
 
         return response()->json();
@@ -88,7 +88,7 @@ class Controller extends BaseController
     {
         $this->closeOpenedOrder(Order::BUY_TYPE);
         $order = $this->orderRepository->createOrder(Order::SELL_TYPE);
-//        $this->orderService->openOrder($order);
+        $this->orderService->openOrder($order);
         $this->telegramService->sendOpenOrderMessage($order);
 
         return response()->json();
@@ -104,7 +104,7 @@ class Controller extends BaseController
         $openOrder = $this->orderRepository->findOpenOrderByType($type);
 
         if ($openOrder) {
-//            $this->orderService->closeOrder($openOrder);
+            $this->orderService->closeOrder($openOrder);
             $this->orderRepository->closeOrder($openOrder);
             $this->telegramService->sendCloseOrderMessage($openOrder);
         }
