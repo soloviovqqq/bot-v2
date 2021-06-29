@@ -19,6 +19,6 @@ $router->get('account', [
 ]);
 
 $router->group(['prefix' => 'api'], function () use ($router) {
-    $router->get('buy', ['uses' => 'Controller@buy']);
-    $router->get('sell', ['uses' => 'Controller@sell']);
+    $router->post('buy', ['uses' => 'Controller@buy']);
+    $router->post('sell', ['uses' => 'Controller@sell']);
 });
