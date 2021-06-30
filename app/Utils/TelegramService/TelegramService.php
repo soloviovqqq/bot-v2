@@ -1,9 +1,7 @@
 <?php
 
-
 namespace App\Utils\TelegramService;
 
-use JsonException;
 use App\Models\Order;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramSDKException;
@@ -46,7 +44,6 @@ class TelegramService
 
     /**
      * @param Order $order
-     * @throws JsonException
      * @throws TelegramSDKException
      */
     public function sendCloseOrderMessage(Order $order): void
@@ -60,16 +57,6 @@ class TelegramService
             'chat_id' => config('telegram.chatId'),
             'text' => $message,
             'parse_mode' => 'Markdown',
-            'reply_markup' => json_encode([
-                'inline_keyboard' => [
-                    [
-                        [
-                            'text' => 'Total wallet balance',
-                            'url' => route('account'),
-                        ]
-                    ],
-                ]
-            ], JSON_THROW_ON_ERROR),
         ]);
     }
 }

@@ -24,6 +24,7 @@ $router->get('order/{order}', [
 ]);
 
 $router->group(['prefix' => 'api'], function () use ($router) {
+    $router->post('order/{order}/close', ['uses' => 'Controller@close']);
     $router->post('buy', ['uses' => 'Controller@buy']);
     $router->post('sell', ['uses' => 'Controller@sell']);
 });

@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use JsonException;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use App\Models\Order;
 use Illuminate\View\View;
 use Laravel\Lumen\Application;
@@ -51,49 +52,17 @@ class Controller extends BaseController
     }
 
     /**
-     * @return void
+     * @return View|Application
      */
     public function account()
     {
         $binance = new BinanceFuture(config('binance.key'), config('binance.secret'));
-        $account = $binance->user()->getAccount();
+        $orders = Order::query()->latest()->paginate();
 
-        dd(
-            route('account'),
-            config('binance.symbol'),
-            config('binance.quantity'),
-            $account,
-        );
-    }
-
-    /**
-     * @return JsonResponse
-     * @throws JsonException
-     * @throws TelegramSDKException
-     */
-    public function buy(): JsonResponse
-    {
-        $this->closeOpenedOrder(Order::SELL_TYPE);
-        $order = $this->orderRepository->createOrder(Order::BUY_TYPE);
-        $this->orderService->openOrder($order);
-        $this->telegramService->sendOpenOrderMessage($order);
-
-        return response()->json();
-    }
-
-    /**
-     * @return JsonResponse
-     * @throws JsonException
-     * @throws TelegramSDKException
-     */
-    public function sell(): JsonResponse
-    {
-        $this->closeOpenedOrder(Order::BUY_TYPE);
-        $order = $this->orderRepository->createOrder(Order::SELL_TYPE);
-        $this->orderService->openOrder($order);
-        $this->telegramService->sendOpenOrderMessage($order);
-
-        return response()->json();
+        return view('account', [
+            'account' => $binance->user()->getAccount(),
+            'orders' => $orders,
+        ]);
     }
 
     /**
@@ -109,30 +78,59 @@ class Controller extends BaseController
         ]);
     }
 
-//    /**
-//     * @param int $order
-//     * @return JsonResponse
-//     * @throws JsonException
-//     * @throws TelegramSDKException
-//     */
-//    public function close1(int $order): JsonResponse
-//    {
-//        /** @var Order $order */
-//        $order = Order::query()->where('status', Order::OPEN_STATUS)->findOrFail($order);
+    /**
+     * @return JsonResponse
+     * @throws TelegramSDKException
+     */
+    public function buy(): JsonResponse
+    {
+        $this->closeOpenedOrder(Order::SELL_TYPE);
+        $order = $this->orderRepository->createOrder(Order::BUY_TYPE);
+        $this->orderService->openOrder($order);
+        $this->telegramService->sendOpenOrderMessage($order);
+
+        return response()->json();
+    }
+
+    /**
+     * @return JsonResponse
+     * @throws TelegramSDKException
+     */
+    public function sell(): JsonResponse
+    {
+        $this->closeOpenedOrder(Order::BUY_TYPE);
+        $order = $this->orderRepository->createOrder(Order::SELL_TYPE);
+        $this->orderService->openOrder($order);
+        $this->telegramService->sendOpenOrderMessage($order);
+
+        return response()->json();
+    }
+
+    /**
+     * @param int $order
+     * @param Request $request
+     * @return JsonResponse
+     * @throws ValidationException
+     */
+    public function close(int $order, Request $request): JsonResponse
+    {
+        $this->validate($request, [
+            'password' => 'required|in:' . config('root.password'),
+        ]);
+        /** @var Order $order */
+        $order = Order::query()->where('status', Order::OPEN_STATUS)->findOrFail($order);
 //        $this->closeOrder($order);
-//
-//        return response()->json();
-//    }
+
+        return response()->json();
+    }
 
     /**
      * @param string $type
      * @throws TelegramSDKException
-     * @throws JsonException
      */
     private function closeOpenedOrder(string $type): void
     {
         $openOrder = $this->orderRepository->findOpenOrderByType($type);
-
         if ($openOrder) {
             $this->closeOrder($openOrder);
         }
@@ -140,7 +138,6 @@ class Controller extends BaseController
 
     /**
      * @param Order $order
-     * @throws JsonException
      * @throws TelegramSDKException
      */
     private function closeOrder(Order $order): void

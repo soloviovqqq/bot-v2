@@ -61,8 +61,9 @@ $app->singleton(
 
 $app->configure('app');
 $app->configure('binance');
-$app->configure('telegram');
 $app->configure('logging');
+$app->configure('root');
+$app->configure('telegram');
 $app->configure('telegram-logger');
 
 /*

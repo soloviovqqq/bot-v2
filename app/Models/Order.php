@@ -35,4 +35,6 @@ class Order extends Model
         'entry_time',
         'exit_time',
     ];
+
+    protected $perPage = 10;
 }
