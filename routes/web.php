@@ -15,7 +15,12 @@
 
 $router->get('account', [
     'as' => 'account',
-    'uses' => 'Controller@account'
+    'uses' => 'Controller@account',
+]);
+
+$router->get('order/{order}', [
+    'as' => 'order',
+    'uses' => 'Controller@order',
 ]);
 
 $router->group(['prefix' => 'api'], function () use ($router) {

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use JsonException;
 use App\Models\Order;
+use Illuminate\View\View;
+use Laravel\Lumen\Application;
 use Lin\Binance\BinanceFuture;
 use Illuminate\Http\JsonResponse;
 use App\Utils\OrderService\OrderService;
@@ -95,6 +97,34 @@ class Controller extends BaseController
     }
 
     /**
+     * @param int $order
+     * @return View|Application
+     */
+    public function order(int $order)
+    {
+        $order = Order::query()->findOrFail($order);
+
+        return view('test1', [
+            'order' => $order,
+        ]);
+    }
+
+//    /**
+//     * @param int $order
+//     * @return JsonResponse
+//     * @throws JsonException
+//     * @throws TelegramSDKException
+//     */
+//    public function close1(int $order): JsonResponse
+//    {
+//        /** @var Order $order */
+//        $order = Order::query()->where('status', Order::OPEN_STATUS)->findOrFail($order);
+//        $this->closeOrder($order);
+//
+//        return response()->json();
+//    }
+
+    /**
      * @param string $type
      * @throws TelegramSDKException
      * @throws JsonException
@@ -104,9 +134,19 @@ class Controller extends BaseController
         $openOrder = $this->orderRepository->findOpenOrderByType($type);
 
         if ($openOrder) {
-            $this->orderService->closeOrder($openOrder);
-            $this->orderRepository->closeOrder($openOrder);
-            $this->telegramService->sendCloseOrderMessage($openOrder);
+            $this->closeOrder($openOrder);
         }
+    }
+
+    /**
+     * @param Order $order
+     * @throws JsonException
+     * @throws TelegramSDKException
+     */
+    private function closeOrder(Order $order): void
+    {
+        $this->orderService->closeOrder($order);
+        $this->orderRepository->closeOrder($order);
+        $this->telegramService->sendCloseOrderMessage($order);
     }
 }
