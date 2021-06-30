@@ -21,7 +21,7 @@
             </div>
             <div class="col-8 mx-auto">
                 <div>
-                    <h2 class="text-center">Trade info:</h2>
+                    <h2 class="text-center">Order info:</h2>
                     <ul class="list-group mb-3">
                         <li class="list-group-item d-flex justify-content-between">
                             <div>

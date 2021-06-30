@@ -104,7 +104,7 @@ class Controller extends BaseController
     {
         $order = Order::query()->findOrFail($order);
 
-        return view('test1', [
+        return view('order', [
             'order' => $order,
         ]);
     }
