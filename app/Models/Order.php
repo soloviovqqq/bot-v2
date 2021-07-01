@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
  * Class Order
  * @package App\Models
  *
+ * @property string $opening_order_id
+ * @property string $closing_order_id
  * @property string $symbol
  * @property string $type
  * @property float $quantity
@@ -28,12 +30,15 @@ class Order extends Model
      * @var array
      */
     protected $fillable = [
+        'opening_order_id',
+        'closing_order_id',
         'symbol',
         'type',
         'quantity',
         'status',
         'entry_time',
         'exit_time',
+        'pln',
     ];
 
     protected $perPage = 10;
