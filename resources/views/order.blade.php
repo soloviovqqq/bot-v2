@@ -58,26 +58,38 @@
                     <input type="password" class="form-control" placeholder="Root's password" id="password">
                     <button class="btn btn-success" type="button" id="close-trade">Close trade</button>
                 </div>
+                <div class="alert alert-danger d-flex align-items-center visually-hidden" id="error-message">
+                    <i class="bi bi-exclamation-diamond-fill me-2"></i>
+                    <div>
+                        Something went wrong. Recheck password or contact support.
+                    </div>
+                </div>
             </div>
         @endif
     </div>
 @endsection
 
-<script>
-    const button = document.getElementById('close-trade');
-    button.addEventListener('click', () => {
-        const password = document.getElementById('password').value;
-        let data = {password: password};
+@push('scripts')
+    @if($order->status === \App\Models\Order::OPEN_STATUS)
+        <script>
+            const button = document.getElementById('close-trade');
+            button.addEventListener('click', () => {
+                const data = {
+                    password: document.getElementById('password').value
+                };
 
-        fetch("/api/order/{{ $order->getKey() }}/close", {
-            method: "POST",
-            body: JSON.stringify(data)
-        }).then(res => {
-            if (res.status === 200) {
-                console.log('vse ok');
-            } else {
-                console.log('ne ok');
-            }
-        });
-    });
-</script>
+                fetch("/api/order/{{ $order->getKey() }}/close", {
+                    method: "POST",
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data),
+                }).then(res => {
+                    if (res.status === 200) {
+                        location.reload();
+                    } else {
+                        document.getElementById('error-message').classList.remove('visually-hidden');
+                    }
+                });
+            });
+        </script>
+    @endif
+@endpush

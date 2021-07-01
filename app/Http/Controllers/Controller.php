@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use App\Models\Order;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
 use Laravel\Lumen\Application;
 use Lin\Binance\BinanceFuture;
 use Illuminate\Http\JsonResponse;
 use App\Utils\OrderService\OrderService;
+use Illuminate\Validation\ValidationException;
 use App\Utils\OrderRepository\OrderRepository;
 use App\Utils\TelegramService\TelegramService;
 use Telegram\Bot\Exceptions\TelegramSDKException;
@@ -57,7 +57,7 @@ class Controller extends BaseController
     public function account()
     {
         $binance = new BinanceFuture(config('binance.key'), config('binance.secret'));
-        $orders = Order::query()->latest()->paginate();
+        $orders = Order::query()->latest()->simplePaginate();
 
         return view('account', [
             'account' => $binance->user()->getAccount(),
@@ -107,19 +107,20 @@ class Controller extends BaseController
     }
 
     /**
-     * @param int $order
      * @param Request $request
+     * @param int $order
      * @return JsonResponse
+     * @throws TelegramSDKException
      * @throws ValidationException
      */
-    public function close(int $order, Request $request): JsonResponse
+    public function close(Request $request, int $order): JsonResponse
     {
         $this->validate($request, [
             'password' => 'required|in:' . config('root.password'),
         ]);
         /** @var Order $order */
         $order = Order::query()->where('status', Order::OPEN_STATUS)->findOrFail($order);
-//        $this->closeOrder($order);
+        $this->closeOrder($order);
 
         return response()->json();
     }

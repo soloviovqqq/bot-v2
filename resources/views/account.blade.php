@@ -7,17 +7,24 @@
             <ul class="list-group mb-3">
                 <li class="list-group-item d-flex justify-content-between">
                     <div>
-                        <h6 class="my-0">Total wallet balance</h6>
+                        <h6 class="my-0">Unrealized profit</h6>
+                    </div>
+                    <span class="text-muted">{{ $account['totalUnrealizedProfit'] }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <div>
+                        <h6 class="my-0">Wallet balance</h6>
                     </div>
                     <span class="text-muted">{{ $account['totalWalletBalance'] }}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <div>
-                        <h6 class="my-0">Total unrealized profit</h6>
+                        <h6 class="my-0">Total wallet balance</h6>
                     </div>
-                    <span class="text-muted">{{ $account['totalUnrealizedProfit'] }}</span>
+                    <span class="text-muted">{{ $account['totalMarginBalance'] }}</span>
                 </li>
             </ul>
+
             <h2 class="text-center mb-3">Latest orders:</h2>
             <table class="table table-hover table-light">
                 <thead>
@@ -49,6 +56,8 @@
                     @endforelse
                 </tbody>
             </table>
+
+            {{ $orders->links() }}
         </div>
     </div>
 @endsection
