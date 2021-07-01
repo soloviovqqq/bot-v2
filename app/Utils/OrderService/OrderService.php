@@ -51,19 +51,21 @@ class OrderService
             'type' => 'MARKET',
             'quantity' => $order->quantity,
         ]);
-        $openingOrder = $this->binance->user()->getOrder([
-            'symbol' => $order->symbol,
-            'orderId' => $order->opening_order_id,
-        ]);
-        $closingOrder = $this->binance->user()->getOrder([
-            'symbol' => $order->symbol,
-            'orderId' => $binanceOrder['orderId'],
-        ]);
-        $order->update([
-            'closing_order_id' => $binanceOrder['orderId'],
-            'pln' => $order->symbol === Order::SELL_TYPE ?
-                $openingOrder['cumQuote'] - $closingOrder['cumQuote'] :
-                $closingOrder['cumQuote'] - $openingOrder['cumQuote'],
-        ]);
+        if ($order->opening_order_id) {
+            $openingOrder = $this->binance->user()->getOrder([
+                'symbol' => $order->symbol,
+                'orderId' => $order->opening_order_id,
+            ]);
+            $closingOrder = $this->binance->user()->getOrder([
+                'symbol' => $order->symbol,
+                'orderId' => $binanceOrder['orderId'],
+            ]);
+            $order->update([
+                'closing_order_id' => $binanceOrder['orderId'],
+                'pln' => $order->symbol === Order::SELL_TYPE ?
+                    $openingOrder['cumQuote'] - $closingOrder['cumQuote'] :
+                    $closingOrder['cumQuote'] - $openingOrder['cumQuote'],
+            ]);
+        }
     }
 }
