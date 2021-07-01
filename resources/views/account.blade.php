@@ -32,8 +32,8 @@
                         <th scope="col">Id</th>
                         <th scope="col">Symbol</th>
                         <th scope="col">Type</th>
-                        <th scope="col">Quantity</th>
                         <th scope="col">Entry time</th>
+                        <th scope="col">Pln</th>
                         <th scope="col">Action</th>
                     </tr>
                 </thead>
@@ -43,15 +43,15 @@
                             <td>{{ $order->getKey() }}</td>
                             <td>{{ $order->symbol }}</td>
                             <td>{{ $order->type }}</td>
-                            <td>{{ $order->quantity }}</td>
                             <td>{{ $order->entry_time }}</td>
+                            <td>{{ $order->pln ?? '-' }}</td>
                             <td>
                                 <a href="{{ route('order', ['order' => $order->getKey()]) }}">Open</a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5">No result found</td>
+                            <td colspan="6">No result found</td>
                         </tr>
                     @endforelse
                 </tbody>
